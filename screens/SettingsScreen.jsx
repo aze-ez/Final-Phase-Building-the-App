@@ -33,7 +33,7 @@ export default function SettingsScreen() {
     </View>
   );
 }
-
+//sty
 const styles = StyleSheet.create({
   container: {
     flex: 1,
