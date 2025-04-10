@@ -6,30 +6,56 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
+import { useCalculatorSettings } from '../context/CalculatorSettingsContext';
 
 export default function CalculatorScreen() {
   const [input, setInput] = useState('');
   const [result, setResult] = useState('');
+  const { isScientific, useDegrees } = useCalculatorSettings();
 
-  const buttons = [
-    ['C', 'DEL', '/', '*'],
+  const standardButtons = [
+    ['C', '⌫', '/', '*'],
     ['7', '8', '9', '-'],
     ['4', '5', '6', '+'],
     ['1', '2', '3', '='],
     ['0', '.', '(', ')'],
   ];
 
+  const scientificButtons = [
+    ['^', '√', 'log', 'sin'],
+    ['cos', 'tan', 'π', 'e'],
+  ];
+
   const handlePress = (btn) => {
     if (btn === 'C') {
       setInput('');
       setResult('');
-    } else if (btn === 'DEL') {
+    } else if (btn === '⌫') {
       setInput((prev) => prev.slice(0, -1));
     } else if (btn === '=') {
       try {
-        const evalResult = eval(input);
+        let expr = input
+          .replace(/π/g, `(${Math.PI})`)
+          .replace(/e/g, `(${Math.E})`)
+          .replace(/√/g, 'Math.sqrt')
+          .replace(/\^/g, '**')
+          .replace(/log/g, 'Math.log10');
+
+        if (useDegrees) {
+          expr = expr
+            .replace(/sin\(([^)]+)\)/g, (_, val) => `Math.sin((${val}) * Math.PI / 180)`)
+            .replace(/cos\(([^)]+)\)/g, (_, val) => `Math.cos((${val}) * Math.PI / 180)`)
+            .replace(/tan\(([^)]+)\)/g, (_, val) => `Math.tan((${val}) * Math.PI / 180)`);
+        } else {
+          expr = expr
+            .replace(/sin/g, 'Math.sin')
+            .replace(/cos/g, 'Math.cos')
+            .replace(/tan/g, 'Math.tan');
+        }
+
+        const evalResult = eval(expr);
         setResult(evalResult.toString());
-      } catch (err) {
+      } catch {
         setResult('Error');
       }
     } else {
@@ -44,12 +70,30 @@ export default function CalculatorScreen() {
         <Text style={styles.resultText}>{result}</Text>
       </ScrollView>
 
+      {isScientific && (
+        <View style={styles.buttonGrid}>
+          {scientificButtons.map((row, i) => (
+            <View key={i} style={styles.buttonRow}>
+              {row.map((btn, j) => (
+                <TouchableOpacity
+                  key={j}
+                  style={styles.button}
+                  onPress={() => handlePress(btn)}
+                >
+                  <Text style={styles.buttonText}>{btn}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))}
+        </View>
+      )}
+
       <View style={styles.buttonGrid}>
-        {buttons.map((row, rowIndex) => (
-          <View key={rowIndex} style={styles.buttonRow}>
-            {row.map((btn, colIndex) => (
+        {standardButtons.map((row, i) => (
+          <View key={i} style={styles.buttonRow}>
+            {row.map((btn, j) => (
               <TouchableOpacity
-                key={colIndex}
+                key={j}
                 style={styles.button}
                 onPress={() => handlePress(btn)}
               >
@@ -86,7 +130,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   buttonGrid: {
-    marginTop: 16,
+    marginTop: 10,
   },
   buttonRow: {
     flexDirection: 'row',
