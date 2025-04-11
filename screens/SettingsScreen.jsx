@@ -4,14 +4,14 @@ import { useCalculatorSettings } from '../context/CalculatorSettingsContext';
 
 export default function SettingsScreen() {
   const {
-    isScientific,
-    setIsScientific,
-    useDegrees,
-    setUseDegrees,
+    isScientific, setIsScientific,
+    useDegrees, setUseDegrees
   } = useCalculatorSettings();
 
   return (
     <View style={styles.container}>
+      <Text style={styles.header}>Settings</Text>
+
       <View style={styles.row}>
         <Text style={styles.label}>Scientific Mode</Text>
         <Switch
@@ -21,6 +21,7 @@ export default function SettingsScreen() {
           thumbColor="#fff"
         />
       </View>
+
       <View style={styles.row}>
         <Text style={styles.label}>Degree Mode</Text>
         <Switch
@@ -30,16 +31,24 @@ export default function SettingsScreen() {
           thumbColor="#fff"
         />
       </View>
+
+      <Text style={styles.version}>Version 2.0</Text>
     </View>
   );
 }
-//sty
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#121212',
     padding: 20,
-    justifyContent: 'center',
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 30,
+    textAlign: 'center',
+    color: '#fff',
   },
   row: {
     flexDirection: 'row',
@@ -50,5 +59,11 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 18,
     color: '#fff',
+  },
+  version: {
+    marginTop: 'auto',
+    textAlign: 'center',
+    fontSize: 14,
+    color: '#777',
   },
 });
